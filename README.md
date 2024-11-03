@@ -6,4 +6,4 @@
 
 # REFERENCE BOOK 
 
-[Machine Learing Bible](/img/cover.png)
+![Machine Learing Bible](/img/cover.png)
