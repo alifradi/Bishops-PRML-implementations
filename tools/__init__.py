@@ -1,5 +1,7 @@
-from tools.basisfunctions import basisfunctions
+from tools.basisfunctions import features
+from tools.Linearmodels import LinearRegression_LS
 
 __all__ = [
-"basisfunctions"
+"features",
+"LinearRegression_LS"
 ]
