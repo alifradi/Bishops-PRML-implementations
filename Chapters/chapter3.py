@@ -75,7 +75,7 @@ plt.show()
 
 
 
-
+# Least Square Linear Regression with Rodge penality
 
 #%%
 from tools.Linearmodels import RidgeRegression
@@ -98,4 +98,9 @@ plt.plot(x_test, y_test, label="$\sin(2\pi x)$")
 plt.plot(x_test, y_predicted, label="prediction")
 plt.legend()
 plt.show()
+
+
+
+# Bayesian Linear Regression
+
 # %%
