@@ -50,8 +50,8 @@ class RidgeRegression():
         Returns:
             Union[np.ndarray, float]: coefficients of contribution to each augmented dimention to the target prediction, estimated variance using training data (basis functions applied to training data), computed Least Squared W* and training targets 
         """
-        w          = np.inv(self.alpha*np.eye(np.size(Phi_X,1))+Phi_X.T@Phi_X)@Phi_X.T@T
-        var_w      = np.mean(np.square(Phi_X@ self.w-T))
+        w          = np.linalg.inv(self.alpha*np.eye(np.size(Phi_X,1))+Phi_X.T@Phi_X)@Phi_X.T@T
+        var_w      = np.mean(np.square(Phi_X@w - T))
         self.var_w = var_w
         self.w     = w
         return w, var_w

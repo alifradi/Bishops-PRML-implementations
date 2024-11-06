@@ -1,6 +1,6 @@
-from .basisfunctions import features
-from .Linearmodels import LinearRegression_LS
-from .Linearmodels import RidgeRegression
+from tools.basisfunctions import features
+from tools.Linearmodels import LinearRegression_LS
+from tools.Linearmodels import RidgeRegression
 
 __all__ = [
     "features",

@@ -5,9 +5,10 @@ sys.path.append(project_path)
 
 
 from tools.basisfunctions import features
-from tools.Linearmodels import LinearRegression_LS
+from tools.Linearmodels import LinearRegression_LS, RidgeRegression
 import matplotlib.pyplot as plt
 import numpy as np
+
 
 # Basis Functions
 
@@ -47,16 +48,17 @@ def plot_columns_with_latex(matrix, x, title):
 # Least Square Linear Regression
 
 # %%
+from tools.Linearmodels import LinearRegression_LS
 # train
 x_train = np.linspace(-4,5,100)
 np.random.shuffle(x_train)
-y_train = np.sin(x_train)+np.random.normal(0,0.2,x.shape)
-Phi_X_train = features("Sigmoidal",30).fit(x_train,2)
+y_train = np.sin(x_train)+np.random.normal(0,0.2,x_train.shape)
+Phi_X_train = features("Sigmoidal",10).fit(x_train,2)
 leastSquare_linReg = LinearRegression_LS()
 leastSquare_linReg.fit(Phi_X_train, y_train)
 # Testing
 x_test = np.linspace(-4,5,30)
-Phi_X_test = features("Sigmoidal",30).fit(x_test,2)
+Phi_X_test = features("Sigmoidal",10).fit(x_test,2)
 y_predicted = leastSquare_linReg.predict(Phi_X_test)
 y_test = np.sin(x_test)
 # plotting
@@ -64,7 +66,36 @@ plt.scatter(x_train, y_train, facecolor="none", edgecolor="b", s=50, label="trai
 plt.plot(x_test, y_test, label="$\sin(2\pi x)$")
 plt.plot(x_test, y_predicted, label="prediction")
 plt.fill_between(
-    x_test, y_predicted - LeastSquare_lineReg.var_w, y_predicted + LeastSquare_lineReg.var_w,
+    x_test, y_predicted - leastSquare_linReg.var_w, y_predicted + leastSquare_linReg.var_w,
     color="orange", alpha=0.5, label="std.")
 plt.legend()
 plt.show()
+
+
+
+
+
+
+
+#%%
+from tools.Linearmodels import RidgeRegression
+# train
+x_train = np.linspace(-4,5,100)
+np.random.shuffle(x_train)
+y_train = np.sin(x_train)+np.random.normal(0,0.2,x_train.shape)
+Phi_X_train = features("Sigmoidal",10).fit(x_train,2)
+
+Ridgemodel = RidgeRegression(alpha =0.001)
+Ridgemodel.fit(Phi_X_train,y_train)
+
+# Testing
+x_test = np.linspace(-4,5,30)
+Phi_X_test = features("Sigmoidal",10).fit(x_test,2)
+y_predicted = Ridgemodel.predict(Phi_X_test)
+y_test = np.sin(x_test)
+plt.scatter(x_train, y_train, facecolor="none", edgecolor="b", s=50, label="training data")
+plt.plot(x_test, y_test, label="$\sin(2\pi x)$")
+plt.plot(x_test, y_predicted, label="prediction")
+plt.legend()
+plt.show()
+# %%
