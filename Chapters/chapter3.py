@@ -104,3 +104,27 @@ plt.show()
 # Bayesian Linear Regression
 
 # %%
+np.random.seed(314)
+m = 4
+x = np.linspace(-4,5,100)
+y = np.sin(x)+np.random.normal(0,0.1,x.shape)
+Phi = features("Polynomial",m).fit(x)
+alpha = 1.2
+beta  = 1
+S0 = np.eye(m) * alpha
+m0 = np.array([0]*Phi.shape[1])
+SN = np.linalg.inv(np.linalg.inv(S0)+beta*Phi.T@Phi)
+mN = SN@(np.linalg.inv(S0)@m0+beta*Phi.T@y)
+
+x_test = np.linspace(-4,5,100)
+Phi_X_test = features("Polynomial",m).fit(x_test)
+n_samples = 20
+# We create an instance of our random vector w
+from scipy.stats import multivariate_normal
+w = multivariate_normal(mean=mN.ravel(), cov=SN)
+w_sample = w.rvs(n_samples)
+y_test_sample = Phi_X_test @ w_sample.T
+plt.plot(x_test, y_test_sample, c="tab:gray", alpha=0.5, zorder=1)
+plt.scatter(x, y, c="tab:red", zorder=2)
+plt.title("Posterior Samples", fontsize=15);
+# %%
