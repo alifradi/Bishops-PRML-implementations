@@ -5,7 +5,7 @@ sys.path.append(project_path)
 
 
 from tools.basisfunctions import features
-from tools.Linearmodels import LinearRegression_LS, RidgeRegression
+from tools.Linearmodels import LinearRegression_LS, RidgeRegression, BayesianLinearRegression
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -127,4 +127,112 @@ y_test_sample = Phi_X_test @ w_sample.T
 plt.plot(x_test, y_test_sample, c="tab:gray", alpha=0.5, zorder=1)
 plt.scatter(x, y, c="tab:red", zorder=2)
 plt.title("Posterior Samples", fontsize=15);
+
+
+# %%
+m = 10
+x_train = np.linspace(-4, 5, 100)
+y_train = np.sin(x_train) + np.random.normal(0, 0.1, x_train.shape)
+Phi_X_train = features("Polynomial", m).fit(x_train)
+
+# Instantiate and fit Bayesian Linear Regression
+BayesRegression = BayesianLinearRegression(alpha=1.2, beta=1)
+BayesRegression.fit(Phi_X_train, y_train)
+
+# Test data
+x_test = np.linspace(-4, 5, 100)
+Phi_X_test = features("Polynomial", m).fit(x_test)
+y_test = np.sin(x_test)
+
+# Make predictions
+y_predicted, y_bar = BayesRegression.predict(Phi_X_test, 20)
+
+# Plotting the results
+plt.plot(x_test, y_predicted, c="tab:gray", alpha=0.5, zorder=1)
+plt.scatter(x_train, y_train, c="tab:red", zorder=2)
+plt.title("Posterior Samples", fontsize=15)
+plt.show()
+
+
+# Bias-Variance tradeoff
+
+# %%
+# Define parameters and data
+m = 9
+x_train = np.linspace(-4, 5, 100)
+y_train = np.sin(x_train) + np.random.normal(0, 0.1, x_train.shape)
+Phi_X_train = features("Polynomial", m).fit(x_train)
+x_test = np.linspace(-4, 5, 100)
+Phi_X_test = features("Polynomial", m).fit(x_test)
+
+# Define different alpha values to try
+alpha_values = [0.01, 1.0, 100.0]
+
+# Prepare the figure for subplots
+fig, axes = plt.subplots(len(alpha_values), 2, figsize=(12, len(alpha_values) * 4))
+n_samples = 20
+
+# Loop over each alpha value
+for i, alpha in enumerate(alpha_values):
+    # Instantiate and fit Bayesian Linear Regression for each alpha
+    BayesRegression = BayesianLinearRegression(alpha=alpha, beta=1)
+    BayesRegression.fit(Phi_X_train, y_train)
+    
+    # Make predictions
+    y_predicted, y_bar = BayesRegression.predict(Phi_X_test, n_samples)
+    
+    # Plot posterior samples on the left column
+    axes[i, 0].plot(x_test, y_predicted, c="tab:gray", alpha=0.5, zorder=1)
+    axes[i, 0].scatter(x_train, y_train, c="tab:red", zorder=2)
+    axes[i, 0].set_title(f"Posterior Samples with Polynomial Basis Functions(alpha = {alpha})", fontsize=15)
+    
+    # Plot the mean predictions on the right column
+    axes[i, 1].plot(x_test, y_bar, c="tab:blue", label="Mean Prediction")
+    axes[i, 1].scatter(x_train, y_train, c="tab:red", zorder=2)
+    axes[i, 1].set_title(f"Mean Prediction with Polynomial Basis Functions (alpha = {alpha})", fontsize=15)
+
+# Adjust layout for readability
+plt.tight_layout()
+plt.show()
+
+
+
+# %%
+# Define parameters and data
+m = 9
+x_train = np.linspace(-4, 5, 100)
+y_train = np.sin(x_train) + np.random.normal(0, 0.1, x_train.shape)
+Phi_X_train = features("Gaussian",4).fit(x_train,0.2)
+x_test = np.linspace(-4, 5, 100)
+Phi_X_test = features("Gaussian",4).fit(x_test,0.2)
+
+# Define different alpha values to try
+alpha_values = [0.01, 1.0, 100.0]
+
+# Prepare the figure for subplots
+fig, axes = plt.subplots(len(alpha_values), 2, figsize=(12, len(alpha_values) * 4))
+n_samples = 20
+
+# Loop over each alpha value
+for i, alpha in enumerate(alpha_values):
+    # Instantiate and fit Bayesian Linear Regression for each alpha
+    BayesRegression = BayesianLinearRegression(alpha=alpha, beta=1)
+    BayesRegression.fit(Phi_X_train, y_train)
+    
+    # Make predictions
+    y_predicted, y_bar = BayesRegression.predict(Phi_X_test, n_samples)
+    
+    # Plot posterior samples on the left column
+    axes[i, 0].plot(x_test, y_predicted, c="tab:gray", alpha=0.5, zorder=1)
+    axes[i, 0].scatter(x_train, y_train, c="tab:red", zorder=2)
+    axes[i, 0].set_title(f"Posterior Samples with Gaussian Basis Functions (alpha = {alpha})", fontsize=15)
+    
+    # Plot the mean predictions on the right column
+    axes[i, 1].plot(x_test, y_bar, c="tab:blue", label="Mean Prediction")
+    axes[i, 1].scatter(x_train, y_train, c="tab:red", zorder=2)
+    axes[i, 1].set_title(f"Mean Prediction with Gaussian Basis Functions (alpha = {alpha})", fontsize=15)
+
+# Adjust layout for readability
+plt.tight_layout()
+plt.show()
 # %%
