@@ -8,6 +8,7 @@ from tools.basisfunctions import features
 from tools.Linearmodels import LinearRegression_LS, RidgeRegression, BayesianLinearRegression
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.stats import multivariate_normal
 
 
 # Basis Functions
@@ -235,4 +236,101 @@ for i, alpha in enumerate(alpha_values):
 # Adjust layout for readability
 plt.tight_layout()
 plt.show()
+
+
+# Weights distributions
+
+# %%
+x_train = np.linspace(-1, 1, 100)
+np.random.shuffle(x_train)
+y_train = -0.3 + 0.5 * x_train + +np.random.normal(0,0.1,x_train.shape)
+Phi_X_train = features("Polynomial", 2).fit(x_train) 
+w0, w1 = np.meshgrid(
+    np.linspace(-1, 1, 100),
+    np.linspace(-1, 1, 100))
+w = np.array([w0, w1]).transpose(1, 2, 0)
+model = BayesianLinearRegression(alpha=1.2, beta=100) 
+
+for begin, end in [[0, 0], [0, 1], [1, 2], [2, 3], [3, 20]]:
+     model.fit(Phi_X_train[begin:end], y_train[begin:end]) 
+     plt.figure(figsize=(12, 5)) 
+     # First subplot: prior/posterior 
+     plt.subplot(1, 2, 1) 
+     plt.scatter(-0.3, 0.5, s=200, marker="x") 
+     plt.contour(w0, w1, multivariate_normal.pdf(w, mean=model.m0, cov=model.S0), cmap='viridis') 
+     plt.gca().set_aspect('equal') 
+     plt.xlabel("$w_0$") 
+     plt.ylabel("$w_1$") 
+     plt.title("Prior/Posterior") # Second subplot: data and prediction 
+     plt.subplot(1, 2, 2) 
+     plt.scatter(x_train[:end], y_train[:end], s=100, facecolor="none", edgecolor="steelblue", lw=1) 
+     y_pred, y_pred_mean = model.predict(Phi_X_train, n_samples=6) 
+     plt.plot(x_train, y_pred, c="orange") 
+     plt.xlim(-1, 1) 
+     plt.ylim(np.min(y_train) - 0.2, np.max(y_train) + 0.2) 
+     plt.gca().set_aspect('equal', adjustable='box') 
+     plt.xlabel("$x$") 
+     plt.ylabel("$y$") 
+     plt.title("Data and Prediction") 
+     plt.tight_layout()
+
+
+
+
+
+
+
+
+# %%
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import multivariate_normal
+import plotly.graph_objs as go
+
+# Assuming BayesianLinearRegression and features are properly defined
+# Define training data
+x_train = np.linspace(-1, 1, 100)
+np.random.shuffle(x_train)
+y_train = -0.3 + 0.5 * x_train + np.random.normal(0, 0.1, x_train.shape)
+Phi_X_train = features("Polynomial", 2).fit(x_train)
+
+# Create a grid for w0 and w1
+w0, w1 = np.meshgrid(
+    np.linspace(-1, 1, 100),
+    np.linspace(-1, 1, 100)
+)
+w = np.array([w0, w1]).transpose(1, 2, 0)
+
+# Initialize model
+model = BayesianLinearRegression(alpha=1.2, beta=100)
+
+# Iterate through subsets of data
+for begin, end in [[0, 0], [0, 1], [1, 2], [2, 3], [3, 20]]:
+    model.fit(Phi_X_train[begin:end], y_train[begin:end])
+    
+    # Compute the probability density for the weight distribution
+    pdf_values = multivariate_normal.pdf(w, mean=model.m0, cov=model.S0)
+    
+    # Create an interactive 3D plot using Plotly
+    fig = go.Figure(data=[
+        go.Surface(z=pdf_values, x=w0, y=w1, colorscale='Viridis')
+    ])
+    
+    # Update layout for better visualization
+    fig.update_layout(
+        title=f'3D Weight Distribution (Data Points {begin} to {end})',
+        scene=dict(
+            xaxis_title='$w_0$',
+            yaxis_title='$w_1$',
+            zaxis_title='Probability Density'
+        ),
+        margin=dict(l=0, r=0, b=0, t=30)  # Reduce margins for better display
+    )
+    
+    # Show the interactive plot
+    fig.show()
+
+    
+
+
 # %%

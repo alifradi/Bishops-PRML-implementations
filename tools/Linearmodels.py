@@ -115,8 +115,8 @@ class BayesianLinearRegression:
         mN = SN @ (np.linalg.inv(S0) @ m0 + self.beta * Phi_X_train.T @ T_train)
         
         # Store posterior mean and covariance
-        self.w_bar = mN
-        self.w_var = SN
+        self.m0 = mN
+        self.S0 = SN
 
     def predict(self, Phi_X_test, n_samples) -> tuple:
         """Uses sampled weights to predict on testing data
@@ -130,7 +130,7 @@ class BayesianLinearRegression:
             tuple: 2- mean of predicted values over sampled weights
         """
         # Sample weights from the posterior distribution
-        w = multivariate_normal(mean=self.w_bar.ravel(), cov=self.w_var, allow_singular=True)
+        w = multivariate_normal(mean=self.m0.ravel(), cov=self.S0, allow_singular=True)
         w_sample = w.rvs(n_samples)
         
         # Predict using sampled weights
