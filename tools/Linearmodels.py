@@ -128,15 +128,16 @@ class BayesianLinearRegression:
         Returns:
             tuple: 1- n_samples of predictions using the sampled weights and transformed test data
             tuple: 2- mean of predicted values over sampled weights
+            tuple: 3- standard deviation of predicted values over sampled weights
         """
         # Sample weights from the posterior distribution
-        w = multivariate_normal(mean=self.m0.ravel(), cov=self.S0, allow_singular=True)
-        w_sample = w.rvs(n_samples)
+        w_sample = np.random.multivariate_normal(mean=self.m0, cov=self.S0, size=n_samples)
+        
         
         # Predict using sampled weights
         y_hat = Phi_X_test @ w_sample.T
-        
-        return y_hat, y_hat.mean(axis=1)
+        y_std = np.sqrt(1/self.beta + np.einsum("ik,kj,ij->i",Phi_X_test,self.S0,Phi_X_test))
+        return y_hat, y_hat.mean(axis=1), y_std
 
 
 

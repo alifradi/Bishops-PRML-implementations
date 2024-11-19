@@ -9,6 +9,7 @@ from tools.Linearmodels import LinearRegression_LS, RidgeRegression, BayesianLin
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import multivariate_normal
+import plotly.graph_objs as go
 
 
 # Basis Functions
@@ -264,7 +265,7 @@ for begin, end in [[0, 0], [0, 1], [1, 2], [2, 3], [3, 20]]:
      plt.title("Prior/Posterior") # Second subplot: data and prediction 
      plt.subplot(1, 2, 2) 
      plt.scatter(x_train[:end], y_train[:end], s=100, facecolor="none", edgecolor="steelblue", lw=1) 
-     y_pred, y_pred_mean = model.predict(Phi_X_train, n_samples=6) 
+     y_pred, y_pred_mean, _ = model.predict(Phi_X_train, n_samples=6) 
      plt.plot(x_train, y_pred, c="orange") 
      plt.xlim(-1, 1) 
      plt.ylim(np.min(y_train) - 0.2, np.max(y_train) + 0.2) 
@@ -333,4 +334,24 @@ for begin, end in [[0, 0], [0, 1], [1, 2], [2, 3], [3, 20]]:
     
 
 
+# %%
+m = 9
+x_train = np.linspace(-5, 6, 25)
+np.random.shuffle(x_train)
+y_train = np.sin(x_train) + np.random.normal(0, 0.1, x_train.shape)
+Phi_X_train = features("Polynomial",m).fit(x_train)
+x_test = np.linspace(-5, 5, 100)
+Phi_X_test = features("Polynomial",m).fit(x_test)
+y_test = np.sin(x_test)
+model = BayesianLinearRegression(alpha=1.2, beta=100)
+for begin, end in [[0, 1], [1, 2], [2, 4], [4, 8], [8, 100]]:
+    model.fit(Phi_X_train[begin: end], y_train[begin: end])
+    y_samples, y, y_std = model.predict(Phi_X_test, n_samples=20)
+    plt.scatter(x_train[:end], y_train[:end], s=100, facecolor="none", edgecolor="steelblue", lw=2)
+    plt.plot(x_test, y_test)
+    plt.plot(x_test, y)
+    plt.fill_between(x_test, y - y_std, y + y_std, color="orange", alpha=0.5)
+    #plt.xlim(0, 1)
+    plt.ylim(-2, 2)
+    plt.show()
 # %%
